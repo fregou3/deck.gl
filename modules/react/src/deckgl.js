@@ -200,6 +200,7 @@ export default class DeckGL extends React.PureComponent {
   }
 
   render() {
+    // TODO - expensive to update on every render?
     this._updateFromProps(this.props);
 
     // Render the background elements (typically react-map-gl instances)
