@@ -4,6 +4,7 @@
 // avoid destructuring for older Node version support
 const resolve = require('path').resolve;
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
 const CONFIG = {
   mode: 'development',
@@ -27,7 +28,11 @@ const CONFIG = {
     ]
   },
 
-  plugins: [new HtmlWebpackPlugin({title: 'deck.gl example'})],
+  plugins: [
+    new HtmlWebpackPlugin({title: 'deck.gl example'}),
+    // Optional: Enables reading mapbox token from environment variable
+    new webpack.EnvironmentPlugin(['MapboxAccessToken'
+  ])],
 
   node: {fs: 'empty'}
 };

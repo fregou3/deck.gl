@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
 
-import {JSONDeck} from '@deck.gl/json';
+import ReactJSONDeck from './components/react-json-deck';
+import mapboxgl from 'mapbox-gl';
 
 import AceEditor from 'react-ace';
 import 'brace/mode/json';
@@ -11,30 +12,22 @@ import {LAYER_CATALOG} from './catalog';
 import {JSON_TEMPLATES} from './templates';
 const INITIAL_JSON = Object.values(JSON_TEMPLATES)[0];
 
+// Set your mapbox token here
+mapboxgl.accessToken = process.env.MapboxAccessToken; // eslint-disable-line
+
 export default class Root extends Component {
   constructor(props) {
     super(props);
     this._onTemplateChange = this._onTemplateChange.bind(this);
     this._onEditorChange = this._onEditorChange.bind(this);
+
+    this.deckRef = React.createRef();
   }
 
   componentDidMount() {
     const json = INITIAL_JSON;
 
-    this.jsonDeck = new JSONDeck({
-      canvas: 'deck-canvas',
-      layerCatalog: LAYER_CATALOG,
-      json
-    });
-
     this._setEditorText(json);
-  }
-
-  componentWillUnmount() {
-    if (this.jsonDeck) {
-      this.jsonDeck.finalize();
-      this.jsonDeck = null;
-    }
   }
 
   _setEditorText(json) {
@@ -75,7 +68,7 @@ export default class Root extends Component {
       // ignore error
     }
     if (json) {
-      this.jsonDeck.setProps({json});
+      this.deckRef.current.setProps({json});
     }
   }
 
@@ -84,13 +77,11 @@ export default class Root extends Component {
       <div>
         <div>
           <div style={{position: 'absolute', width: '100%', height: '100%', margin: 0}}>
-            <div
-              id="map"
-              style={{position: 'absolute', width: '100%', height: '100%', margin: 0}}
-            />
-            <canvas
-              id="deck-canvas"
-              style={{position: 'absolute', width: '100%', height: '100%', margin: 0}}
+            <ReactJSONDeck
+              ref={this.deckRef}
+              {...this.props}
+              layerCatalog={LAYER_CATALOG}
+              mapboxgl={mapboxgl}
             />
           </div>
           <div style={{position: 'absolute', top: '5%', width: '40%', left: '55%', margin: 0}}>

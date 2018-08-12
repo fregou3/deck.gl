@@ -10,31 +10,42 @@ export default class JSONMap {
   constructor(props) {
     const {mapboxgl, mapboxApiAccessToken, container} = props;
 
-    mapboxgl.accessToken = mapboxApiAccessToken || process.env.MapboxAccessToken; // eslint-disable-line
+    mapboxgl.accessToken = mapboxgl.accessToken ||
+      mapboxApiAccessToken || process.env.MapboxAccessToken; // eslint-disable-line
 
     this._setStyleSheet(props);
 
-    this._map = new mapboxgl.Map(
+    this.map = new mapboxgl.Map(
       Object.assign({}, props, {
         container,
         interactive: false
       })
     );
 
-    this._container = this._map._container;
+    this._container = this.map._container;
 
     this.setProps(props);
   }
 
+  /* eslint-disable complexity */
   setProps(props) {
-    if ('visible' in props) {
-      this._container.style.visibility = props.visible ? 'visible' : 'hidden';
+    if ('map' in props || 'mapStyle' in props) {
+      const visible = props.mapStyle || props.map;
+      this._container.style.visibility = visible ? 'visible' : 'hidden';
+    }
+
+    if ('mapStyle' in props) {
+      this.map.setStyle(props.mapStyle);
+    }
+
+    if ('initialViewState' in props) {
+      this.setProps({viewState: props.initialViewState})
     }
 
     // Makes sure only geospatial (lng/lat) view states are set
     if ('viewState' in props && props.viewState.longitude && props.viewState.latitude) {
       const {viewState} = props;
-      this._map.jumpTo({
+      this.map.jumpTo({
         center: [viewState.longitude, viewState.latitude],
         zoom: viewState.zoom || 10,
         bearing: viewState.bearing || 0,
@@ -42,9 +53,10 @@ export default class JSONMap {
       });
     }
   }
+  /* eslint-enable complexity */
 
   finalize() {
-    this._map.remove();
+    this.map.remove();
   }
 
   _setStyleSheet(props) {

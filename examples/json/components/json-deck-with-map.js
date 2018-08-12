@@ -1,4 +1,4 @@
-import JSONDeck from './json-deck';
+import {JSONDeck} from '@deck.gl/json';
 import JSONMap from './json-map';
 
 const DEFAULT_MAPBOX_STYLE = 'mapbox://styles/mapbox/light-v9';
@@ -9,7 +9,10 @@ export default class JSONDeckWithMap extends JSONDeck {
 
     // Create map if requested (props.mapboxgl is supplied)
     this.map = this._createMap(this.props);
-    this._setMapProps(props);
+    const json = this.props.json;
+    if (json) {
+      this._setMapProps(json);
+    }
   }
 
   finalize() {
@@ -23,12 +26,13 @@ export default class JSONDeckWithMap extends JSONDeck {
 
   setProps(props) {
     super.setProps(props);
-    this._setMapProps(props);
+    this._setMapProps(props.json);
   }
 
   // PRIVATE
   _onViewStateChange({viewState}) {
     this.setProps({viewState});
+    this.map.setProps({viewState});
   }
 
   // Creates the base mapbox map
@@ -51,14 +55,11 @@ export default class JSONDeckWithMap extends JSONDeck {
     return map;
   }
 
-  _setMapProps(props) {
-    // Note: pros.json has now merged been into props
-    if (this.map) {
-      const mapProps = {visible: props.map};
-      if (props.map) {
-        Object.assign(mapProps, props);
-      }
-      this.map.setProps(mapProps);
+  _setMapProps(json) {
+    if (!this.map || !json) {
+      return;
     }
+
+    this.map.setProps(json);
   }
 }

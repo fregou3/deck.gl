@@ -83,8 +83,6 @@ function enhancedFetch(url) {
         return JSON.parse(text);
       } catch (error) {
         const csv = csvParseRows(text);
-        console.log(csv);
-        debugger;
         return csv;
       }
     });

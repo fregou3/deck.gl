@@ -42,6 +42,8 @@ export default class JSONDeck {
   }
 
   _setProps(props) {
+    this.props = props;
+
     if ('layerCatalog' in props) {
       this.layerCatalog = props.layerCatalog;
     }
